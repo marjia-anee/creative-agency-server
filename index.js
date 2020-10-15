@@ -26,6 +26,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true , useUnifiedTopology
 client.connect(err => {
   const serviceCollection = client.db("creativeAgency").collection("services");
   
+  const reviewCollection = client.db("creativeAgency").collection("reviews");
+
   app.post('/addService', (req, res) => {
     const file=req.files.file
     const userName=req.body.userName
@@ -49,9 +51,26 @@ client.connect(err => {
       })
   });
 
-  app.get('/showServices',(req,res)=>{
+  app.get('/showServices',(req, res)=>{
     serviceCollection.find({})
     .toArray((error,documents)=>{
+      res.send(documents)
+    })
+  })
+
+  app.post('/addReview',(req, res)=>{
+    reviewCollection.insertOne(req.body)
+    .then(result=> {
+      res.send(result.insertedCount > 0)
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+  })
+
+  app.get('/showReviews',(req,res)=>{
+    reviewCollection.find({})
+    .toArray((error, documents)=>{
       res.send(documents)
     })
   })
